@@ -9,13 +9,13 @@ Changelog:
 -------------*/
 use serde::Deserialize;
 
-/// This is a transaction make up given invoming data from services.
+/// This is a transaction make up given incoming data from services.
 /// 
 /// # Info
-/// * `t` - (String) This is the type of transaction 'deposit' or 'withdrawl'.
+/// * `t` - (String) This is the type of transaction 'deposit' or 'withdrawal'.
 /// * `client` - (u16) Client ID is unique to each client.
 /// * `tx` - (tx) Transactions are between two client accounts.
-/// * `amount` - (f32) The amount is decimal precsion up to 4 places.
+/// * `amount` - (f32) The amount is decimal precision up to 4 places.
 #[derive(Debug, Deserialize, Clone)]
 pub struct Transaction {
 	#[serde(rename = "type")]
@@ -37,7 +37,7 @@ impl Transaction {
 }
 
 /// A enum representing all of the possible transaction types.
-/// We set to lowercase for automatching so we dont have to impl.
+/// We set to lowercase for auto matching so we don't have to impl.
 #[derive(Deserialize, Debug, Clone, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum TransactionType {

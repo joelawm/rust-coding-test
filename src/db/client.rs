@@ -8,13 +8,13 @@ Changelog:
 	-- Initial code release.
 -------------*/
 
-/// The client struct is used for holding the client infomation.
+/// The client struct is used for holding the client information.
 /// 
 /// # Info
-/// * `client` - (u16) The Unqiue Client ID.
-/// * `available` - (f32) Total funds that are avaiable for trading, staking, withdrawls etc.
+/// * `client` - (u16) The Unique Client ID.
+/// * `available` - (f32) Total funds that are available for trading, staking, withdrawals etc.
 /// * `held` - (f32) Total fund that are held for dispute.
-/// * `total` - (f32) Total funds that are avaiable or held.
+/// * `total` - (f32) Total funds that are available or held.
 /// * `locked` - (bool) Wether a Client is locked. A Client is locked if a charge back occurs.
 #[derive(Debug)]
 pub struct Client {
@@ -26,19 +26,19 @@ pub struct Client {
 }
 
 impl Client {
-    /// Creates the client allowing for basic manipluation of the struct
+    /// Creates the client allowing for basic manipulation of the struct
     pub fn new(client: u16, deposit: f32) -> Client {
-        Client {client: client, total: deposit, held: 0.0, available: deposit, lock: false,}
+        Client {client, total: deposit, held: 0.0, available: deposit, lock: false,}
     }
 
-    /// Allows a user despoit funds into client.
+    /// Allows a user despoil funds into client.
     /// 
     /// # Arguments
     /// * `deposit` - (f32) Represents a monetary value to add to the client.
     pub fn deposit(&mut self, deposit: f32) -> &mut Client {
 		self.available += deposit;
         self.total += deposit;
-        return self;
+        self
     }
 
     /// A user can withdraw money from the client.
@@ -46,23 +46,23 @@ impl Client {
     /// 
     /// # Arguments
     /// * `withdraw` - (f32) Represents a monetary value to remove from the client.
-    pub fn withdrawal(&mut self, withdrawl: f32) -> &mut Client {
-        if self.available < withdrawl {
+    pub fn withdrawal(&mut self, withdrawal: f32) -> &mut Client {
+        if self.available < withdrawal {
             return self;
         }
-		self.available -= withdrawl;
-        self.total -= withdrawl;
-        return self;
+		self.available -= withdrawal;
+        self.total -= withdrawal;
+        self
     }
 
-    /// Allows the system to dispute the charge and remove the avaiable amount 
+    /// Allows the system to dispute the charge and remove the available amount 
     /// 
     /// # Arguments
     /// * `amount` - (f32) Represents a monetary value to manipulate in the client
     pub fn dispute(&mut self, amount: f32) -> &mut Client {
         self.available -= amount;
         self.held += amount;
-        return self;
+        self
     }
 
     /// Allows the system to resolve the charge moving the money back into the client
@@ -72,7 +72,7 @@ impl Client {
     pub fn resolve(&mut self, amount: f32) -> &mut Client {
 		self.available += amount;
         self.held -= amount;
-        return self;
+        self
     }
 
     /// Allows the system to chargeback the charge moving the money from the account and locking it.
@@ -83,6 +83,6 @@ impl Client {
         self.held -= amount;
         self.total -= amount;
 		self.lock = true;
-        return self;
+        self
     }
 }

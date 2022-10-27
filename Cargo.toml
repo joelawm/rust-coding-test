@@ -9,7 +9,4 @@ log4rs = "0.13.0"
 thiserror = "1.0.3"																				
 csv = "1.1"
 serde = { version = "1", features = ["derive"] }
-rust_decimal = "1.24"
-rust_decimal_macros = "1.24"
 clap = { version = "3.0.14", features = ["cargo"] }
-linked-hash-map = "0.5.4"

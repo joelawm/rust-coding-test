@@ -19,17 +19,16 @@ pub struct PaymentEngine {
 }
 
 impl PaymentEngine {
-	/// Creates a new payment engine and initalizes the hashmaps.
+	/// Creates a new payment engine and initializes the hashmaps.
     pub fn new() -> PaymentEngine {
         PaymentEngine { transactions: HashMap::new(), clients: HashMap::new() }
     }
 
 	/// Runs the transactions and 
-	#[inline]
     pub fn run_transaction(&mut self, tx: &Transaction) -> &mut PaymentEngine {
 		// Check to see if a transaction id exists
 		if self.transactions.contains_key(&tx.tx) {
-			// If it does were gonna add to the vector which is making essentailly
+			// If it does were gonna add to the vector which is making essentially
 			// a LinkedList Hashmap
 			let transaction = self.transactions.get_mut(&tx.tx).unwrap();
 			transaction.push(tx.clone());
@@ -40,7 +39,7 @@ impl PaymentEngine {
 		}
 
 		// If the client does not exist create it so we can create its totals
-		if self.clients.contains_key(&tx.client_id) == false {
+		if !self.clients.contains_key(&tx.client_id) {
 			if let TransactionType::Deposit = tx.t {
 				self.clients.insert(tx.client_id, Client::new(tx.client_id, tx.amount.unwrap()));
 			} else {error!("File not in chronological order.")}
@@ -49,7 +48,7 @@ impl PaymentEngine {
 			return self;
 		}
 
-		// Match the trasnaction to the right enum type
+		// Match the transaction to the right enum type
         match tx.t {
             TransactionType::Deposit => {self.deposit(tx);},
             TransactionType::Withdrawal => {self.withdrawal(tx);},
@@ -57,13 +56,13 @@ impl PaymentEngine {
             TransactionType::Resolve => {self.resolve(tx);},
             TransactionType::Chargeback => {self.chargeback(tx);},
         }
-        return self;
+        self
     }
 
 	/// Allows you to output to a csv accounts file.
 	pub fn print_output(&self) {
         // Print heading
-        println!("client,avaliable,held,total,locked");
+        println!("client,available,held,total,locked");
 
         // Print data
         for user in &self.clients {
@@ -72,56 +71,53 @@ impl PaymentEngine {
     }
 
 	/// Allows a user to deposit into a account
-	#[inline]
     fn deposit(&mut self, tx: &Transaction) -> &mut PaymentEngine {
         let client = self.clients.get_mut(&tx.client_id).unwrap();
 
 		// Check to see if the account is already locked.
-        if client.lock == true {
+        if client.lock {
 			error!("The account is locked.");
-            return self;
+            return self
         }
 
 		// Add to the clients total
         client.deposit(tx.amount.unwrap());
 
-        return self;
+        self
     }
 
 	/// Allows a user to withdraw from the account
-	#[inline]
     fn withdrawal(&mut self, tx: &Transaction) -> &mut PaymentEngine {
         let client = self.clients.get_mut(&tx.client_id).unwrap();
 
 		// Check to see if the account is already locked.
-        if client.lock == true {
+        if client.lock {
 			error!("The account is locked.");
-            return self;
+            return self
         }
 
 		// Hit the client withdraw function
         client.withdrawal(tx.amount.unwrap());
 
-        return self;
+        self
     }
 
 	/// Allows the system to dispute a charge
-	#[inline]
     fn dispute(&mut self, tx: &Transaction) -> &mut PaymentEngine {
         let client = self.clients.get_mut(&tx.client_id).unwrap();
 
 		// Check to see if the account is already locked.
-        if client.lock == true {
+        if client.lock {
 			error!("The account is locked.");
             return self;
         }
 
 		// Check to see if the transaction exists
-        if self.transactions.contains_key(&tx.tx) == false {
+        if !self.transactions.contains_key(&tx.tx) {
             return self;
         }
 
-		// Grab the trasnaction
+		// Grab the transaction
         let tx = self.transactions.get_mut(&tx.tx).unwrap();
 
 		// Iterate through each transaction
@@ -133,22 +129,21 @@ impl PaymentEngine {
 			}
 		}
 
-        return self;
+        self
     }
 
 	/// Allow the system to resolve the current transaction
-	#[inline]
     fn resolve(&mut self, tx: &Transaction) -> &mut PaymentEngine {
         let client = self.clients.get_mut(&tx.client_id).unwrap();
 
 		// Check to see if the account is already locked.
-        if client.lock == true {
+        if client.lock {
 			error!("The account is locked.");
             return self;
         }
 
 		// Check to see it contains the key
-        if self.transactions.contains_key(&tx.tx) == false {
+        if !self.transactions.contains_key(&tx.tx) {
             return self;
         }
 
@@ -158,7 +153,7 @@ impl PaymentEngine {
 		// Iterate through the transaction
 		for tr in tx {
 			// Check to see if its disputed
-			if tr.dispute == false {
+			if !tr.dispute {
 				return self;
 			}
 
@@ -170,32 +165,31 @@ impl PaymentEngine {
 			}
 		}
 
-        return self;
+        self
     }
 
 	/// Allow the system to lock the account and set it as a charge back
-	#[inline]
     fn chargeback(&mut self, tx: &Transaction) -> &mut PaymentEngine {
         let client = self.clients.get_mut(&tx.client_id).unwrap();
 
 		// Check to see if the account is already locked.
-        if client.lock == true {
+        if client.lock {
 			error!("The account is locked.");
             return self;
         }
 
 		// Check to see if the transaction exists
-        if self.transactions.contains_key(&tx.tx) == false {
+        if !self.transactions.contains_key(&tx.tx) {
             return self;
         }
 
 		// Grab a mutable transaction
         let tx = self.transactions.get_mut(&tx.tx).unwrap();
 
-		// Iteracte throughthe transaction
+		// Iterates through the transaction
 		for tr in tx {
 			// Check to see if the transaction is disputed
-			if tr.dispute == false {
+			if !tr.dispute {
 				error!("Failed to dispute the transaction.");
 				return self;
 			}
@@ -205,6 +199,6 @@ impl PaymentEngine {
 			tr.dispute = false;
 		}
 
-        return self;
+        self
     }
 }

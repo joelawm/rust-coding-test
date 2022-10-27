@@ -32,7 +32,7 @@ pub fn get_data(filename: String) -> Vec<Transaction> {
         transactions.push(record);
     }
 
-    return transactions;
+    transactions
 }
 
 /// This runs the transactions from the payment engine
